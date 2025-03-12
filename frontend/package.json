@@ -5,6 +5,14 @@
         "start": "next start"
     },
     "devDependencies": {
+        "@types/node": "22.13.10",
+        "@types/react": "19.0.10",
         "typescript": "5.8.2"
+    },
+    "dependencies": {
+        "@supabase/supabase-js": "^2.49.1",
+        "next": "^15.2.2",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0"
     }
 }
