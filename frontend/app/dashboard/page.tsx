@@ -1,5 +1,5 @@
-import SummaryCard from ".././components/SummaryCard";
-import Chart from ".././components/Chart";
+import SummaryCard from "../components/SummaryCard";
+import Chart from "../components/Chart";
 
 export default function Dashboard() {
   return (
