@@ -2,13 +2,10 @@
   "name": "personal-finance-dashboard",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "frontend",
-    "backend"
-  ],
   "scripts": {
-    "install": "npm install --workspaces",
-    "start:frontend": "npm run dev --workspace=frontend",
-    "start:backend": "npm start --workspace=backend"
+    "install:frontend": "cd frontend && npm install",
+    "install:backend": "cd backend && npm install",
+    "start:frontend": "cd frontend && npm run dev",
+    "start:backend": "cd backend && npm start"
   }
 }
