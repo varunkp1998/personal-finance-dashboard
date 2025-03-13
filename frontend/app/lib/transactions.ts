@@ -26,31 +26,38 @@ export const addTransaction = async (
     category: string
   ) => {
     const { data: userData, error: userError } = await supabase.auth.getUser();
-    
+  
     if (userError || !userData?.user?.id) {
-      console.error("User not authenticated:", userError?.message);
+      console.error("❌ User not authenticated:", userError?.message);
       return { error: "User not authenticated" };
     }
   
     const userId = userData.user.id;
   
+    // ✅ Ensure type matches allowed values exactly (lowercase)
+    const formattedType = type.toLowerCase(); // Convert to lowercase
+  
+    if (!["income", "expense"].includes(formattedType)) {
+      console.error("❌ Invalid type:", type);
+      return { error: "Type must be 'income' or 'expense'" };
+    }
+  
     const transactionData = {
-      user_id: userId, // ✅ Ensure user_id is present
+      user_id: userId,
       description: description?.trim() || "No Description",
       amount: parseFloat(amount.toString()),
-      type: type.toLowerCase() === "income" ? "Income" : "Expense", // ✅ Fix type constraint
+      type: formattedType, // Ensure lowercase type
       category: category?.trim(),
-      date: new Date().toISOString(), // ✅ Ensure date is not null
+      date: new Date().toISOString(),
       created_at: new Date().toISOString(),
     };
   
     console.log("🚀 Inserting transaction:", transactionData);
   
-    const { data, error } = await supabase.from("transactions").insert([transactionData]);
+    const { data, error } = await supabase.from("transactions").insert([transactionData]).select();
   
     if (error) {
-      console.error("❌ Insert Error:", error);
-      return { error: error.message };
+      console.error("❌ Insert Error:", error.message);
     } else {
       console.log("✅ Insert Success:", data);
     }
