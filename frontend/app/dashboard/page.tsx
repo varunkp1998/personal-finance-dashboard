@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import SummaryCard from "../components/SummaryCard";
+import { supabase } from "../lib/supabase";
 import Chart from "../components/Chart";
 import PieChart from "../components/PieChart";
-import { supabase } from "../lib/supabase";
+import { Card, CardContent, Typography, Grid } from "@mui/material";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -85,13 +85,50 @@ export default function Dashboard() {
     <section className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-4xl font-bold text-gray-800 text-center mb-6">Dashboard</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <SummaryCard title="Total Income" amount={totalIncome} color="green" />
-        <SummaryCard title="Total Expenses" amount={totalExpenses} color="red" />
-        <SummaryCard title="Net Worth" amount={netWorth} color="blue" />
-      </div>
+      {/* ✅ Summary Cards with Material-UI */}
+      <Grid container spacing={3} justifyContent="center">
+        <Grid item xs={12} sm={6} md={4}>
+          <Card sx={{ bgcolor: "#e3fcef", boxShadow: 3 }}>
+            <CardContent>
+              <Typography variant="h6" color="green" fontWeight="bold">
+                Total Income
+              </Typography>
+              <Typography variant="h4" fontWeight="bold">
+                ₹{totalIncome.toLocaleString()}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
+        <Grid item xs={12} sm={6} md={4}>
+          <Card sx={{ bgcolor: "#ffe6e6", boxShadow: 3 }}>
+            <CardContent>
+              <Typography variant="h6" color="red" fontWeight="bold">
+                Total Expenses
+              </Typography>
+              <Typography variant="h4" fontWeight="bold">
+                ₹{totalExpenses.toLocaleString()}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4}>
+          <Card sx={{ bgcolor: "#e6f2ff", boxShadow: 3 }}>
+            <CardContent>
+              <Typography variant="h6" color="blue" fontWeight="bold">
+                Net Worth
+              </Typography>
+              <Typography variant="h4" fontWeight="bold">
+                ₹{netWorth.toLocaleString()}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* ✅ Transactions Table */}
+      <div className="bg-white p-6 rounded-lg shadow-md mt-6">
         <h2 className="text-2xl font-semibold text-gray-700 mb-4">Recent Transactions</h2>
         {transactions.length === 0 ? (
           <p className="text-gray-500 text-center">No transactions found.</p>
@@ -127,21 +164,30 @@ export default function Dashboard() {
         )}
       </div>
 
+      {/* ✅ Charts Section */}
       {transactions.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <div className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center">
-            <h2 className="text-lg font-semibold text-gray-700">Income vs Expenses</h2>
-            <div className="h-[300px] w-full flex justify-center items-center">
-              <Chart transactions={transactions} />
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center">
-            <h2 className="text-lg font-semibold text-gray-700">Expense Breakdown</h2>
-            <div className="h-[300px] w-full flex justify-center items-center">
-              <PieChart transactions={transactions} />
-            </div>
-          </div>
-        </div>
+        <Grid container spacing={3} className="mt-6">
+          <Grid item xs={12} md={6}>
+            <Card sx={{ p: 3, boxShadow: 3 }}>
+              <Typography variant="h6" className="text-gray-700 text-center">
+                Income vs Expenses
+              </Typography>
+              <div className="h-[300px] flex justify-center items-center">
+                <Chart transactions={transactions} />
+              </div>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Card sx={{ p: 3, boxShadow: 3 }}>
+              <Typography variant="h6" className="text-gray-700 text-center">
+                Expense Breakdown
+              </Typography>
+              <div className="h-[300px] flex justify-center items-center">
+                <PieChart transactions={transactions} />
+              </div>
+            </Card>
+          </Grid>
+        </Grid>
       )}
     </section>
   );
