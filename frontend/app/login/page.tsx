@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
+import Image from "next/image";
+import loginImage from "@/public/login-illustration.svg"; // Add an image to public folder
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -10,7 +12,7 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const user = localStorage.getItem("user"); // Replace with actual Supabase auth check
+    const user = localStorage.getItem("user");
     if (user) {
       router.push("/dashboard");
     }
@@ -31,10 +33,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-        <h2 className="text-2xl font-bold text-gray-700 text-center">Login</h2>
-        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+    <div className="flex min-h-screen">
+      {/* Image Section */}
+      <div className="hidden md:flex items-center justify-center w-1/2 bg-blue-500">
+        <Image src={loginImage} alt="Login Illustration" className="w-3/4" />
+      </div>
+
+      {/* Form Section */}
+      <div className="flex flex-col justify-center w-full md:w-1/2 p-8 md:p-16">
+        <h2 className="text-3xl font-bold text-center text-gray-700">Login</h2>
+        {error && <p className="text-red-500 text-sm text-center mt-2">{error}</p>}
         <form className="mt-6 space-y-4" onSubmit={handleLogin}>
           <input
             type="email"
@@ -52,13 +60,15 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button className="w-full bg-blue-500 text-white p-3 rounded hover:bg-blue-600">
+          <button className="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition">
             Sign In
           </button>
         </form>
         <p className="text-center text-sm mt-4">
-          <span>Don't have an account? </span>
-          <a href="/signup" className="text-green-500 hover:underline">Sign Up</a>
+          Don't have an account?{" "}
+          <a href="/signup" className="text-green-500 hover:underline">
+            Sign Up
+          </a>
         </p>
       </div>
     </div>
