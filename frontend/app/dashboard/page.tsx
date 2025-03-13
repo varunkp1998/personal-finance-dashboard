@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
 import Chart from "../components/Chart";
 import PieChart from "../components/PieChart";
-import { Card, CardContent, Typography, Grid } from "@mui/material";
+import { Card, CardContent, Typography, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -73,6 +75,20 @@ export default function Dashboard() {
     setNetWorth(income - expenses);
   };
 
+  const handleUpdate = (id) => {
+    console.log("Update transaction:", id);
+    // TODO: Open an update modal or navigate to edit page
+  };
+
+  const handleDelete = async (id) => {
+    const { error } = await supabase.from("transactions").delete().eq("id", id);
+    if (error) {
+      console.error("Error deleting transaction:", error.message);
+      return;
+    }
+    setTransactions(transactions.filter((txn) => txn.id !== id));
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen text-xl font-bold text-gray-700">
@@ -127,42 +143,49 @@ export default function Dashboard() {
         </Grid>
       </Grid>
 
-      {/* ✅ Transactions Table */}
-      <div className="bg-white p-6 rounded-lg shadow-md mt-6">
-        <h2 className="text-2xl font-semibold text-gray-700 mb-4">Recent Transactions</h2>
+      {/* ✅ Transactions Table with Grid & Actions */}
+      <Card sx={{ mt: 6, p: 3, boxShadow: 3 }}>
+        <Typography variant="h5" className="text-gray-700 mb-4">
+          Recent Transactions
+        </Typography>
         {transactions.length === 0 ? (
-          <p className="text-gray-500 text-center">No transactions found.</p>
+          <Typography className="text-gray-500 text-center">No transactions found.</Typography>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="bg-blue-100 text-gray-700">
-                  <th className="p-3 text-left">Date</th>
-                  <th className="p-3 text-left">Description</th>
-                  <th className="p-3 text-left">Category</th>
-                  <th className="p-3 text-left">Amount (₹)</th>
-                </tr>
-              </thead>
-              <tbody>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: "#f0f0f0" }}>
+                  <TableCell><b>Date</b></TableCell>
+                  <TableCell><b>Description</b></TableCell>
+                  <TableCell><b>Category</b></TableCell>
+                  <TableCell><b>Amount (₹)</b></TableCell>
+                  <TableCell align="center"><b>Actions</b></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {transactions.map((txn) => (
-                  <tr key={txn.id} className="border-b hover:bg-gray-50">
-                    <td className="p-3">{new Date(txn.date).toLocaleDateString()}</td>
-                    <td className="p-3">{txn.description}</td>
-                    <td className="p-3">{txn.category}</td>
-                    <td
-                      className={`p-3 font-semibold ${
-                        txn.type === "income" ? "text-green-600" : "text-red-600"
-                      }`}
-                    >
+                  <TableRow key={txn.id}>
+                    <TableCell>{new Date(txn.date).toLocaleDateString()}</TableCell>
+                    <TableCell>{txn.description}</TableCell>
+                    <TableCell>{txn.category}</TableCell>
+                    <TableCell sx={{ fontWeight: "bold", color: txn.type === "income" ? "green" : "red" }}>
                       ₹{txn.amount.toLocaleString()}
-                    </td>
-                  </tr>
+                    </TableCell>
+                    <TableCell align="center">
+                      <IconButton color="primary" onClick={() => handleUpdate(txn.id)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton color="error" onClick={() => handleDelete(txn.id)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
-      </div>
+      </Card>
 
       {/* ✅ Charts Section */}
       {transactions.length > 0 && (
