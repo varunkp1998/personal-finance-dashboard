@@ -1,3 +1,4 @@
+import Link from "next/link";
 import SummaryCard from "../components/SummaryCard";
 import Chart from "../components/Chart";
 import TransactionList from "../components/TransactionList";
@@ -7,13 +8,29 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Navigation Bar */}
-      <nav className="bg-white shadow-md p-4 flex justify-between items-center">
+      <nav className="bg-white shadow-md p-4 flex justify-between items-center px-6">
         <h1 className="text-2xl font-bold text-blue-600">Finance Dashboard</h1>
         <ul className="flex space-x-6 text-gray-700">
-          <li className="hover:text-blue-500 cursor-pointer">Dashboard</li>
-          <li className="hover:text-blue-500 cursor-pointer">Transactions</li>
-          <li className="hover:text-blue-500 cursor-pointer">Investments</li>
-          <li className="hover:text-blue-500 cursor-pointer">Logout</li>
+          <li>
+            <Link href="/dashboard" className="hover:text-blue-500 font-medium">
+              Dashboard
+            </Link>
+          </li>
+          <li>
+            <Link href="/transactions" className="hover:text-blue-500 font-medium">
+              Transactions
+            </Link>
+          </li>
+          <li>
+            <Link href="/investments" className="hover:text-blue-500 font-medium">
+              Investments
+            </Link>
+          </li>
+          <li>
+            <Link href="/logout" className="hover:text-red-500 font-medium">
+              Logout
+            </Link>
+          </li>
         </ul>
       </nav>
 
