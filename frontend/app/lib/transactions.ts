@@ -4,7 +4,7 @@ import { supabase } from "../lib/supabase";
 export async function getTransactions() {
   const user = await supabase.auth.getUser();
   if (!user.data.user) return { error: "User not logged in" };
-
+  console.log(user)
   const { data, error } = await supabase
     .from("transactions")
     .select("*")
@@ -20,28 +20,23 @@ export async function getTransactions() {
 
 // ✅ Add a new transaction
 export const addTransaction = async (description: string, amount: number, type: string, category: string) => {
-    const user = (await supabase.auth.getUser()).data?.user;
-    
-    if (!user?.id) {
-      console.error("User not authenticated or user ID missing");
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    console.log(userData)
+    if (userError || !userData?.user?.id) {
+      console.error("User not authenticated:", userError?.message);
       return { error: "User not authenticated" };
     }
   
-    // Convert `type` to match the constraint (Income or Expense)
-    const formattedType = type.trim().charAt(0).toUpperCase() + type.trim().slice(1).toLowerCase();
-  
-    if (formattedType !== "Income" && formattedType !== "Expense") {
-      console.error("Invalid transaction type:", formattedType);
-      return { error: "Transaction type must be either 'Income' or 'Expense'" };
-    }
+    const userId = userData.user.id; // ✅ Ensure user ID is fetched
   
     const transactionData = {
-      user_id: user.id,
-      description: description.trim(),
+      user_id: userId, // ✅ Now user_id will not be null
+      description: description.trim() || "No Description",
       amount: parseFloat(amount.toString()),
-      type: formattedType, // ✅ Ensure only "Income" or "Expense"
+      type: type.trim().charAt(0).toUpperCase() + type.trim().slice(1).toLowerCase(), // Ensure "Income" or "Expense"
       category: category.trim(),
       date: new Date().toISOString(),
+      created_at: new Date().toISOString(),
     };
   
     console.log("Inserting transaction:", transactionData);
@@ -50,11 +45,13 @@ export const addTransaction = async (description: string, amount: number, type: 
   
     if (error) {
       console.error("Insert Error:", error.message);
+    } else {
+      console.log("Insert Success:", data);
     }
   
     return { data, error };
   };
-    
+      
   
 // ✅ Edit a transaction
 export async function updateTransaction(id, description, amount, type, category) {
