@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
 import Image from "next/image";
-import signupImage from "@/public/signup-illustration.svg"; // Add an image to public folder
+import signupImage from "/Users/admin/Desktop/personal-finance-dashboard/public/signupImage.svg"; 
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");

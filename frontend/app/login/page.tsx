@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
 import Image from "next/image";
-import loginImage from "@/public/login-illustration.svg"; // Add an image to public folder
+import loginImage from "/Users/admin/Desktop/personal-finance-dashboard/public/loginImage.svg";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
