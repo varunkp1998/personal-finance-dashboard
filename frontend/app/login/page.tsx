@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
@@ -9,19 +9,24 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const router = useRouter();
 
+  useEffect(() => {
+    const user = localStorage.getItem("user"); // Replace with actual Supabase auth check
+    if (user) {
+      router.push("/dashboard");
+    }
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error, data } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       setError(error.message);
     } else {
-      router.push("/dashboard"); // Redirect to dashboard after login
+      localStorage.setItem("user", JSON.stringify(data));
+      router.push("/dashboard");
     }
   };
 
@@ -52,8 +57,8 @@ export default function LoginPage() {
           </button>
         </form>
         <p className="text-center text-sm mt-4">
-        <p>{`Don't have an account?`}</p>
-        <a href="/signup" className="text-green-500 hover:underline">Sign Up</a>
+          <span>Don't have an account? </span>
+          <a href="/signup" className="text-green-500 hover:underline">Sign Up</a>
         </p>
       </div>
     </div>
