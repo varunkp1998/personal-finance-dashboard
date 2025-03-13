@@ -1,26 +1,27 @@
 "use client";
-import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
+import { Line } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
 
-const data = [
-  { month: "Jan", income: 3000, expenses: 1500 },
-  { month: "Feb", income: 3500, expenses: 2000 },
-  { month: "Mar", income: 4000, expenses: 2500 },
-];
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 export default function Chart() {
-  return (
-    <div className="bg-white p-4 shadow-lg rounded-lg mt-6">
-      <h2 className="text-xl font-bold text-gray-700 mb-4">Income vs. Expenses</h2>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={data}>
-          <CartesianGrid stroke="#ccc" />
-          <XAxis dataKey="month" />
-          <YAxis />
-          <Tooltip />
-          <Line type="monotone" dataKey="income" stroke="green" />
-          <Line type="monotone" dataKey="expenses" stroke="red" />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  );
+  const data = {
+    labels: ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar"],
+    datasets: [
+      {
+        label: "Income",
+        data: [4000, 4200, 4500, 4700, 5000, 5200],
+        borderColor: "green",
+        fill: false,
+      },
+      {
+        label: "Expenses",
+        data: [2000, 2500, 2300, 2700, 2600, 2800],
+        borderColor: "red",
+        fill: false,
+      },
+    ],
+  };
+
+  return <Line data={data} />;
 }
