@@ -1,4 +1,4 @@
-import { supabase } from "../lib/supabase";
+import { supabase } from "../../frontend/lib/supabase";
 
 // ✅ Fetch all transactions for the logged-in user
 export async function getTransactions() {
