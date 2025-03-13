@@ -9,4 +9,5 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true, // Refreshes token automatically
     detectSessionInUrl: true,
   },
+  
 });

@@ -21,23 +21,32 @@ export async function getTransactions() {
 // ✅ Add a new transaction
 export const addTransaction = async (description: string, amount: number, type: string, category: string) => {
     const user = (await supabase.auth.getUser()).data?.user;
-    if (!user) {
-      console.error("No user logged in!");
+    
+    if (!user?.id) {
+      console.error("User not authenticated or user ID missing");
       return { error: "User not authenticated" };
     }
   
-    const { data, error } = await supabase
-      .from("transactions")
-      .insert([
-        {
-          user_id: user.id, // Ensure user_id is added
-          description,
-          amount,
-          type,
-          category,
-          created_at: new Date(),
-        },
-      ]);
+    // Convert `type` to match the constraint (Income or Expense)
+    const formattedType = type.trim().charAt(0).toUpperCase() + type.trim().slice(1).toLowerCase();
+  
+    if (formattedType !== "Income" && formattedType !== "Expense") {
+      console.error("Invalid transaction type:", formattedType);
+      return { error: "Transaction type must be either 'Income' or 'Expense'" };
+    }
+  
+    const transactionData = {
+      user_id: user.id,
+      description: description.trim(),
+      amount: parseFloat(amount.toString()),
+      type: formattedType, // ✅ Ensure only "Income" or "Expense"
+      category: category.trim(),
+      date: new Date().toISOString(),
+    };
+  
+    console.log("Inserting transaction:", transactionData);
+  
+    const { data, error } = await supabase.from("transactions").insert([transactionData]);
   
     if (error) {
       console.error("Insert Error:", error.message);
@@ -45,6 +54,7 @@ export const addTransaction = async (description: string, amount: number, type: 
   
     return { data, error };
   };
+    
   
 // ✅ Edit a transaction
 export async function updateTransaction(id, description, amount, type, category) {
