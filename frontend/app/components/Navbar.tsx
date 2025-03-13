@@ -9,8 +9,17 @@ export default function Navbar() {
   const router = useRouter();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error("Logout failed:", error.message);
+      return;
+    }
+
+    // Clear local storage and redirect after logout is complete
+    localStorage.removeItem("user");
+
+    router.replace("/login"); // ✅ Prevents glitching by ensuring smooth transition
   };
 
   return (
@@ -22,9 +31,9 @@ export default function Navbar() {
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           Personal Finance Dashboard
         </Typography>
-        <Button color="inherit" onClick={handleLogout}>
-          Logout
-        </Button>
+        <button onClick={handleLogout} className="bg-red-500 px-4 py-2 rounded hover:bg-red-600">
+        Logout
+      </button>
       </Toolbar>
     </AppBar>
   );
