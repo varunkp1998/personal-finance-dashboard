@@ -1,3 +1,5 @@
+"use client"; // ✅ Fix: Mark this as a client component
+
 import { usePathname } from "next/navigation";
 import Navbar from "./components/Navbar";
 
