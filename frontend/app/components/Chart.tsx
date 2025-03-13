@@ -1,27 +1,33 @@
-"use client";
 import { Line } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+interface ChartProps {
+  transactions: any[];
+}
 
-export default function Chart() {
+export default function Chart({ transactions }: ChartProps) {
+  // Process transactions to create chart data
+  const labels = transactions.map((t) => t.date);
+  const dataValues = transactions.map((t) => t.amount);
+
   const data = {
-    labels: ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar"],
+    labels,
     datasets: [
       {
-        label: "Income",
-        data: [4000, 4200, 4500, 4700, 5000, 5200],
-        borderColor: "green",
-        fill: false,
-      },
-      {
-        label: "Expenses",
-        data: [2000, 2500, 2300, 2700, 2600, 2800],
-        borderColor: "red",
-        fill: false,
+        label: "Income & Expenses",
+        data: dataValues,
+        borderColor: "blue",
+        backgroundColor: "rgba(0, 0, 255, 0.2)",
+        fill: true,
       },
     ],
   };
 
-  return <Line data={data} />;
+  return (
+    <div className="w-full max-w-md mx-auto bg-white p-4 rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold text-center mb-2">Income vs Expenses</h2>
+      <div className="h-64">
+        <Line data={data} />
+      </div>
+    </div>
+  );
 }

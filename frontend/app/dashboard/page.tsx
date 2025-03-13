@@ -1,64 +1,106 @@
-"use client";
-import { useState } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import SummaryCard from "../components/SummaryCard";
 import Chart from "../components/Chart";
 import PieChart from "../components/PieChart";
-import TransactionList from "../components/TransactionList";
-import NetWorth from "../components/NetWorth";
+import { getTransactions } from "../../../backend/controllers/transactionController";
+import { supabase } from "../lib/supabase";
 
 export default function Dashboard() {
-  // Dummy data for now (Replace with API data)
-  const [totalIncome, setTotalIncome] = useState(5000);
-  const [totalExpenses, setTotalExpenses] = useState(2000);
-  const netWorth = totalIncome - totalExpenses;
+  const [transactions, setTransactions] = useState([]);
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [totalExpenses, setTotalExpenses] = useState(0);
+  const [netWorth, setNetWorth] = useState(0);
+
+  useEffect(() => {
+    async function fetchData() {
+      const user = await supabase.auth.getUser();
+      if (!user.data.user) return;
+
+      const data = await getTransactions();
+      if (data.length) {
+        setTransactions(data);
+        calculateSummary(data);
+      }
+    }
+    fetchData();
+  }, []);
+
+  // ✅ Calculate financial summary
+  const calculateSummary = (data) => {
+    let income = 0,
+      expenses = 0;
+
+    data.forEach((transaction) => {
+      if (transaction.type.toLowerCase() === "income") {
+        income += transaction.amount;
+      } else if (transaction.type.toLowerCase() === "expense") {
+        expenses += transaction.amount;
+      }
+    });
+
+    setTotalIncome(income);
+    setTotalExpenses(expenses);
+    setNetWorth(income - expenses);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Navigation Bar */}
-      <nav className="bg-white shadow-md p-4 flex justify-between items-center px-6">
-        <h1 className="text-2xl font-bold text-blue-600">Finance Dashboard</h1>
-        <ul className="flex space-x-6 text-gray-700">
-          <li><Link href="/dashboard" className="hover:text-blue-500 font-medium">Dashboard</Link></li>
-          <li><Link href="/transactions" className="hover:text-blue-500 font-medium">Transactions</Link></li>
-          <li><Link href="/investments" className="hover:text-blue-500 font-medium">Investments</Link></li>
-          <li><Link href="/logout" className="hover:text-red-500 font-medium">Logout</Link></li>
-        </ul>
-      </nav>
+    <section className="p-6">
+      <h1 className="text-3xl font-bold text-gray-700">Dashboard</h1>
 
-      {/* Dashboard Content */}
-      <section className="p-6 max-w-6xl mx-auto">
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <SummaryCard title="Total Income" amount={totalIncome} color="green" />
-          <SummaryCard title="Total Expenses" amount={totalExpenses} color="red" />
-          <SummaryCard title="Net Worth" amount={netWorth} color="blue" />
-        </div>
+      {/* ✅ Financial Summary Section */}
+      <div className="grid grid-cols-3 gap-6 mt-6">
+      <SummaryCard title="Total Income" amount={totalIncome} color="green" />
+      <SummaryCard title="Total Expenses" amount={totalExpenses} color="red" />
+      <SummaryCard title="Net Worth" amount={netWorth} color="blue" />
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold text-gray-700">Income vs. Expenses (Last 6 months)</h2>
-            <Chart />
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold text-gray-700">Expense Breakdown</h2>
-            <PieChart />
-          </div>
-        </div>
+      </div>
 
-        {/* Transactions & Net Worth */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold text-gray-700">Recent Transactions</h2>
-            <TransactionList />
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold text-gray-700">Net Worth Calculation</h2>
-            <NetWorth />
+      {/* ✅ Transactions Table */}
+      <div className="bg-white p-4 mt-6 rounded-lg shadow-md">
+        <h2 className="text-lg font-semibold text-gray-700 mb-4">Recent Transactions</h2>
+        {transactions.length === 0 ? (
+          <p className="text-gray-500">No transactions found.</p>
+        ) : (
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="p-2 text-left">Date</th>
+                <th className="p-2 text-left">Description</th>
+                <th className="p-2 text-left">Category</th>
+                <th className="p-2 text-left">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transactions.map((txn) => (
+                <tr key={txn.id} className="border-b">
+                  <td className="p-2">{new Date(txn.date).toLocaleDateString()}</td>
+                  <td className="p-2">{txn.description}</td>
+                  <td className="p-2">{txn.category}</td>
+                  <td className={`p-2 font-semibold ${txn.type === "income" ? "text-green-500" : "text-red-500"}`}>
+                    ₹{txn.amount}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* ✅ Charts Section (Side by Side) */}
+      <div className="grid grid-cols-2 gap-6 mt-6">
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <h2 className="text-lg font-semibold text-gray-700">Income vs Expenses</h2>
+          <div className="h-[300px] w-full">
+            <Chart transactions={transactions} />
           </div>
         </div>
-      </section>
-    </div>
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <h2 className="text-lg font-semibold text-gray-700">Expense Breakdown</h2>
+          <div className="h-[300px] w-full">
+            <PieChart transactions={transactions} />
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
