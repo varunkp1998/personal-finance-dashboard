@@ -2,8 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
-import Image from "next/image";
-import signupImage from "/Users/admin/Desktop/personal-finance-dashboard/public/signupImage.svg"; 
+
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
@@ -28,8 +27,9 @@ export default function SignUpPage() {
     <div className="flex min-h-screen">
       {/* Image Section */}
       <div className="hidden md:flex items-center justify-center w-1/2 bg-green-500">
-        <Image src={signupImage} alt="Signup Illustration" className="w-3/4" />
-      </div>
+  <img src="/signupImage.svg" alt="Signup Illustration" className="w-3/4" />
+</div>
+
 
       {/* Form Section */}
       <div className="flex flex-col justify-center w-full md:w-1/2 p-8 md:p-16">

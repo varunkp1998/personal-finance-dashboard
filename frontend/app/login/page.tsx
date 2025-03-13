@@ -2,8 +2,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
-import Image from "next/image";
-import loginImage from "/Users/admin/Desktop/personal-finance-dashboard/public/loginImage.svg";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -36,8 +34,9 @@ export default function LoginPage() {
     <div className="flex min-h-screen">
       {/* Image Section */}
       <div className="hidden md:flex items-center justify-center w-1/2 bg-blue-500">
-        <Image src={loginImage} alt="Login Illustration" className="w-3/4" />
-      </div>
+  <img src="/loginImage.svg" alt="Login Illustration" className="w-3/4" />
+</div>
+
 
       {/* Form Section */}
       <div className="flex flex-col justify-center w-full md:w-1/2 p-8 md:p-16">
