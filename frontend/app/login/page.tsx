@@ -2,18 +2,28 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
+import {
+  Box,
+  Card,
+  CardContent,
+  TextField,
+  Button,
+  Typography,
+  IconButton,
+  InputAdornment,
+} from "@mui/material";
+import { Email, Lock, Visibility, VisibilityOff } from "@mui/icons-material";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const user = localStorage.getItem("user");
-    if (user) {
-      router.push("/dashboard");
-    }
+    if (user) router.push("/dashboard");
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -31,63 +41,80 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen">
-      {/* ✅ Image Section */}
-      <div className="hidden md:flex items-center justify-center w-1/2 bg-blue-500">
-        <img src="/loginImage.svg" alt="Login Illustration" className="w-3/4" />
-      </div>
+    <Box display="flex" justifyContent="center" alignItems="center" height="100vh" bgcolor="#f5f5f5">
+      <Card sx={{ width: 400, p: 3, boxShadow: 3 }}>
+        <CardContent>
+          <Typography variant="h5" fontWeight="bold" textAlign="center" color="primary">
+            Sign In
+          </Typography>
 
-      {/* ✅ Form Section */}
-      <div className="flex flex-col justify-center w-full md:w-1/2 p-8 md:p-16">
-        <h2 className="text-3xl font-bold text-center text-gray-700">Login</h2>
-        {error && <p className="text-red-500 text-sm text-center mt-2">{error}</p>}
+          {error && (
+            <Typography color="error" variant="body2" textAlign="center" mt={1}>
+              {error}
+            </Typography>
+          )}
 
-        <form className="mt-6 space-y-5" onSubmit={handleLogin}>
-          {/* ✅ Email Field */}
-          <div>
-            <label htmlFor="email" className="block text-gray-600 font-medium mb-1">Email</label>
-            <input
-              id="email"
+          <form onSubmit={handleLogin}>
+            {/* ✅ Email Field */}
+            <TextField
+              label="Email"
+              variant="outlined"
+              fullWidth
+              margin="normal"
               type="email"
-              placeholder="Enter your email"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Email color="primary" />
+                  </InputAdornment>
+                ),
+              }}
             />
-          </div>
 
-          {/* ✅ Password Field */}
-          <div>
-            <label htmlFor="password" className="block text-gray-600 font-medium mb-1">Password</label>
-            <input
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+            {/* ✅ Password Field */}
+            <TextField
+              label="Password"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              type={showPassword ? "text" : "password"}
+              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Lock color="primary" />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword(!showPassword)}>
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
-          </div>
 
-          {/* ✅ Submit Button */}
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition font-semibold"
-          >
-            Sign In
-          </button>
-        </form>
+            {/* ✅ Login Button */}
+            <Button variant="contained" color="primary" fullWidth sx={{ mt: 2 }} type="submit">
+              Sign In
+            </Button>
+          </form>
 
-        {/* ✅ Signup Link */}
-        <p className="text-center text-sm mt-4">
-          Don't have an account?{" "}
-          <a href="/signup" className="text-green-500 font-medium hover:underline">
-            Sign Up
-          </a>
-        </p>
-      </div>
-    </div>
+          {/* ✅ Signup Link */}
+          <Typography variant="body2" textAlign="center" mt={2}>
+            Don't have an account?{" "}
+            <a href="/signup" style={{ color: "green", fontWeight: "bold", textDecoration: "none" }}>
+              Sign Up
+            </a>
+          </Typography>
+        </CardContent>
+      </Card>
+    </Box>
   );
 }

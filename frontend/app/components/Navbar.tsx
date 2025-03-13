@@ -1,42 +1,31 @@
 "use client";
-import { useState, useEffect } from "react";
+
+import { AppBar, Toolbar, Typography, Button, IconButton } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import { useRouter } from "next/navigation";
+import { supabase } from "../lib/supabase";
 
 export default function Navbar() {
   const router = useRouter();
-  const [darkMode, setDarkMode] = useState(false);
 
-  useEffect(() => {
-    // Check local storage for dark mode preference
-    const storedTheme = localStorage.getItem("theme");
-    if (storedTheme === "dark") {
-      document.documentElement.classList.add("dark");
-      setDarkMode(true);
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    if (darkMode) {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    } else {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    }
-    setDarkMode(!darkMode);
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/login");
   };
 
   return (
-    <nav className="bg-blue-500 dark:bg-gray-900 text-white p-4 flex justify-between items-center">
-      <h1 className="text-2xl font-bold">Finance Dashboard</h1>
-      <div className="flex items-center gap-4">
-        <button onClick={toggleDarkMode} className="p-2 bg-gray-700 dark:bg-gray-300 rounded">
-          {darkMode ? "🌙" : "☀️"}
-        </button>
-        <button onClick={() => router.push("/login")} className="p-2 bg-red-500 rounded">
+    <AppBar position="fixed" sx={{ backgroundColor: "#2c3e50" }}>
+      <Toolbar>
+        <IconButton edge="start" color="inherit" aria-label="menu">
+          <MenuIcon />
+        </IconButton>
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          Personal Finance Dashboard
+        </Typography>
+        <Button color="inherit" onClick={handleLogout}>
           Logout
-        </button>
-      </div>
-    </nav>
+        </Button>
+      </Toolbar>
+    </AppBar>
   );
 }

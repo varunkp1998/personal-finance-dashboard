@@ -8,6 +8,7 @@ import PieChart from "../components/PieChart";
 import { Card, CardContent, Typography, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import Navbar from "../components/Navbar"; // ✅ Import Navbar
 
 export default function Dashboard() {
   const router = useRouter();
@@ -96,8 +97,10 @@ export default function Dashboard() {
       </div>
     );
   }
+  <Navbar />
 
   return (
+
     <section className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-4xl font-bold text-gray-800 text-center mb-6">Dashboard</h1>
 
