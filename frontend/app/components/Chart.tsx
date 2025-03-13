@@ -1,8 +1,9 @@
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
 import { Line } from "react-chartjs-2";
-
 interface ChartProps {
   transactions: any[];
 }
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 export default function Chart({ transactions }: ChartProps) {
   // Process transactions to create chart data

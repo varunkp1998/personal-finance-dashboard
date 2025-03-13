@@ -1,4 +1,8 @@
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Pie } from "react-chartjs-2";
+
+// ✅ Register the ArcElement (needed for Pie charts)
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface PieChartProps {
   transactions: any[];

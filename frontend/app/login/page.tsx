@@ -34,8 +34,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen">
       {/* Image Section */}
       <div className="hidden md:flex items-center justify-center w-1/2 bg-blue-500">
-  <img src="/loginImage.svg" alt="Login Illustration" className="w-3/4" />
-</div>
+      <img src="loginImage.svg" alt="Login Illustration" className="w-3/4" />
+      </div>
 
 
       {/* Form Section */}

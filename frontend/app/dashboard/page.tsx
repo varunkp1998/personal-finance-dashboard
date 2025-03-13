@@ -14,34 +14,33 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function fetchData() {
-      const { data: session, error } = await supabase.auth.getSession();
+      const { data, error } = await supabase.auth.getUser();
   
-      console.log("Session Data:", session);
-      if (!session?.session?.user) {
-        console.error("User not logged in.");
+      if (error || !data?.user) {
+        console.error("No authenticated user found.");
         return;
       }
   
-      const token = session.session.access_token;
+      const userId = data.user.id; // ✅ Now it's safe to access user.id
   
-      const response = await fetch("/api/transactions", {
-        headers: { Authorization: `Bearer ${token}` }, // ✅ Send token
-      });
+      const { data: transactions, error: transactionsError } = await supabase
+        .from("transactions")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
   
-      const data = await response.json();
-      console.log("API Response:", data);
-  
-      if (!Array.isArray(data)) {
-        console.error("Error fetching transactions:", data?.error || "Unknown error");
+      if (transactionsError) {
+        console.error("Error fetching transactions:", transactionsError.message);
         return;
       }
   
-      setTransactions(data);
-      calculateSummary(data);
+      console.log("Fetched Transactions:", transactions);
+      setTransactions(transactions);
     }
   
     fetchData();
   }, []);
+  
   
   
   // ✅ Calculate financial summary
