@@ -1,12 +1,15 @@
 "use client"; // ✅ Ensure this file runs on the client side
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation"; // ✅ Import router for redirection
 import SummaryCard from "../components/SummaryCard";
 import Chart from "../components/Chart";
 import PieChart from "../components/PieChart";
 import { supabase } from "../lib/supabase";
 
 export default function Dashboard() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true); // ✅ Add loading state
   const [transactions, setTransactions] = useState([]);
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
@@ -17,9 +20,11 @@ export default function Dashboard() {
       const { data, error } = await supabase.auth.getUser();
 
       if (error || !data?.user) {
-        console.error("No authenticated user found.");
+        router.push("/login"); // ✅ Redirect to login before rendering dashboard
         return;
       }
+
+      setLoading(false); // ✅ Stop loading once authentication is verified
 
       const userId = data.user.id;
 
@@ -34,13 +39,12 @@ export default function Dashboard() {
         return;
       }
 
-      console.log("Fetched Transactions:", transactions);
       setTransactions(transactions);
       calculateSummary(transactions);
     }
 
     fetchData();
-  }, []);
+  }, [router]);
 
   // ✅ Calculate financial summary
   const calculateSummary = (data) => {
@@ -59,6 +63,11 @@ export default function Dashboard() {
     setTotalExpenses(expenses);
     setNetWorth(income - expenses);
   };
+
+  // ✅ Show a loading screen while checking authentication
+  if (loading) {
+    return <div className="flex justify-center items-center min-h-screen text-xl font-bold text-gray-700">Loading...</div>;
+  }
 
   return (
     <section className="p-6 bg-gray-100 min-h-screen">
