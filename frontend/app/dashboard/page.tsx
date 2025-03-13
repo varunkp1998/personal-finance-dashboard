@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import SummaryCard from "../components/SummaryCard";
 import Chart from "../components/Chart";
 import PieChart from "../components/PieChart";
-import { getTransactions } from "../../../backend/controllers/transactionController";
 import { supabase } from "../lib/supabase";
 
 export default function Dashboard() {
@@ -15,27 +14,18 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function fetchData() {
-      const user = await supabase.auth.getUser();
-      if (!user.data.user) return;
-
-      const data = await getTransactions();
-
-if (Array.isArray(data)) {
-  if (data.length > 0) {
-    setTransactions(data);
-    calculateSummary(data);
-  } else {
-    console.warn("No transactions found.");
-  }
-} else {
-  console.error("Error fetching transactions:", (data as { error: string }).error);
-}
-
+      const response = await fetch("/api/transactions");
+      const data = await response.json();
       
+      if (Array.isArray(data)) {
+        setTransactions(data);
+        calculateSummary(data);
+      } else {
+        console.error("Error fetching transactions:", data?.error);
+      }
     }
     fetchData();
   }, []);
-
   // ✅ Calculate financial summary
   const calculateSummary = (data) => {
     let income = 0,
