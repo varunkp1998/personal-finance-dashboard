@@ -14,18 +14,33 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function fetchData() {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+  
+      console.log("Supabase User Data:", userData);
+      console.error("Supabase User Error:", userError);
+  
+      if (!userData?.user) {
+        console.error("User not logged in.");
+        return;
+      }
+  
       const response = await fetch("/api/transactions");
       const data = await response.json();
-      
-      if (Array.isArray(data)) {
-        setTransactions(data);
-        calculateSummary(data);
-      } else {
-        console.error("Error fetching transactions:", data?.error);
+  
+      console.log("API Response:", data); // ✅ Debug response from API
+  
+      if (!Array.isArray(data)) {
+        console.error("Error fetching transactions:", data?.error || "Unknown error");
+        return;
       }
+  
+      setTransactions(data);
+      calculateSummary(data);
     }
+  
     fetchData();
   }, []);
+  
   // ✅ Calculate financial summary
   const calculateSummary = (data) => {
     let income = 0,
