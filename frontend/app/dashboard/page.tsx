@@ -1,7 +1,7 @@
 "use client"; // ✅ Ensure this file runs on the client side
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation"; // ✅ Import router for redirection
+import { useRouter } from "next/navigation"; 
 import SummaryCard from "../components/SummaryCard";
 import Chart from "../components/Chart";
 import PieChart from "../components/PieChart";
@@ -9,44 +9,65 @@ import { supabase } from "../lib/supabase";
 
 export default function Dashboard() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true); // ✅ Add loading state
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null); // ✅ Store user state
   const [transactions, setTransactions] = useState([]);
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [netWorth, setNetWorth] = useState(0);
 
   useEffect(() => {
-    async function fetchData() {
+    const checkAuth = async () => {
       const { data, error } = await supabase.auth.getUser();
-
       if (error || !data?.user) {
-        router.push("/login"); // ✅ Redirect to login before rendering dashboard
+        router.push("/login"); // ✅ Redirect before loading anything
         return;
       }
 
-      setLoading(false); // ✅ Stop loading once authentication is verified
+      setUser(data.user);
+      setLoading(false);
+    };
 
-      const userId = data.user.id;
+    checkAuth();
 
-      const { data: transactions, error: transactionsError } = await supabase
-        .from("transactions")
-        .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false });
-
-      if (transactionsError) {
-        console.error("Error fetching transactions:", transactionsError.message);
-        return;
+    // ✅ Listen for auth state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session?.user) {
+        router.push("/login"); // ✅ Redirect if user logs out
+      } else {
+        setUser(session.user);
       }
+    });
 
-      setTransactions(transactions);
-      calculateSummary(transactions);
-    }
-
-    fetchData();
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, [router]);
 
-  // ✅ Calculate financial summary
+  useEffect(() => {
+    if (user) {
+      fetchTransactions();
+    }
+  }, [user]); // ✅ Fetch transactions only after user is set
+
+  const fetchTransactions = async () => {
+    if (!user) return;
+
+    const { data: transactions, error } = await supabase
+      .from("transactions")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching transactions:", error.message);
+      return;
+    }
+
+    setTransactions(transactions);
+    calculateSummary(transactions);
+  };
+
   const calculateSummary = (data) => {
     let income = 0,
       expenses = 0;
@@ -64,7 +85,6 @@ export default function Dashboard() {
     setNetWorth(income - expenses);
   };
 
-  // ✅ Show a loading screen while checking authentication
   if (loading) {
     return <div className="flex justify-center items-center min-h-screen text-xl font-bold text-gray-700">Loading...</div>;
   }
@@ -73,14 +93,12 @@ export default function Dashboard() {
     <section className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-4xl font-bold text-gray-800 text-center mb-6">Dashboard</h1>
 
-      {/* ✅ Financial Summary Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <SummaryCard title="Total Income" amount={totalIncome} color="green" />
         <SummaryCard title="Total Expenses" amount={totalExpenses} color="red" />
         <SummaryCard title="Net Worth" amount={netWorth} color="blue" />
       </div>
 
-      {/* ✅ Transactions Table */}
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold text-gray-700 mb-4">Recent Transactions</h2>
         {transactions.length === 0 ? (
@@ -113,7 +131,6 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* ✅ Charts Section (Side by Side) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <div className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center">
           <h2 className="text-lg font-semibold text-gray-700">Income vs Expenses</h2>
