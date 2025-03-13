@@ -19,10 +19,19 @@ export default function Dashboard() {
       if (!user.data.user) return;
 
       const data = await getTransactions();
-      if (data.length) {
-        setTransactions(data);
-        calculateSummary(data);
-      }
+
+if (Array.isArray(data)) {
+  if (data.length > 0) {
+    setTransactions(data);
+    calculateSummary(data);
+  } else {
+    console.warn("No transactions found.");
+  }
+} else {
+  console.error("Error fetching transactions:", (data as { error: string }).error);
+}
+
+      
     }
     fetchData();
   }, []);
