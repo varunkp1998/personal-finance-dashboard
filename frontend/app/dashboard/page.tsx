@@ -1,3 +1,5 @@
+"use client"; // ✅ Ensure this file runs on the client side
+
 import { useEffect, useState } from "react";
 import SummaryCard from "../components/SummaryCard";
 import Chart from "../components/Chart";
@@ -48,11 +50,10 @@ export default function Dashboard() {
       <h1 className="text-3xl font-bold text-gray-700">Dashboard</h1>
 
       {/* ✅ Financial Summary Section */}
-      <div className="grid grid-cols-3 gap-6 mt-6">
-      <SummaryCard title="Total Income" amount={totalIncome} color="green" />
-      <SummaryCard title="Total Expenses" amount={totalExpenses} color="red" />
-      <SummaryCard title="Net Worth" amount={netWorth} color="blue" />
-
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        <SummaryCard title="Total Income" amount={totalIncome} color="green" />
+        <SummaryCard title="Total Expenses" amount={totalExpenses} color="red" />
+        <SummaryCard title="Net Worth" amount={netWorth} color="blue" />
       </div>
 
       {/* ✅ Transactions Table */}
@@ -67,7 +68,7 @@ export default function Dashboard() {
                 <th className="p-2 text-left">Date</th>
                 <th className="p-2 text-left">Description</th>
                 <th className="p-2 text-left">Category</th>
-                <th className="p-2 text-left">Amount</th>
+                <th className="p-2 text-left">Amount (₹)</th>
               </tr>
             </thead>
             <tbody>
@@ -77,7 +78,7 @@ export default function Dashboard() {
                   <td className="p-2">{txn.description}</td>
                   <td className="p-2">{txn.category}</td>
                   <td className={`p-2 font-semibold ${txn.type === "income" ? "text-green-500" : "text-red-500"}`}>
-                    ₹{txn.amount}
+                    ₹{txn.amount.toLocaleString()} {/* ✅ Show formatted amount */}
                   </td>
                 </tr>
               ))}
@@ -86,17 +87,17 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* ✅ Charts Section (Side by Side) */}
-      <div className="grid grid-cols-2 gap-6 mt-6">
+      {/* ✅ Charts Section (Side by Side, Smaller Size) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-lg font-semibold text-gray-700">Income vs Expenses</h2>
-          <div className="h-[300px] w-full">
+          <div className="h-[300px] w-full flex justify-center items-center">
             <Chart transactions={transactions} />
           </div>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-lg font-semibold text-gray-700">Expense Breakdown</h2>
-          <div className="h-[300px] w-full">
+          <div className="h-[300px] w-full flex justify-center items-center">
             <PieChart transactions={transactions} />
           </div>
         </div>
