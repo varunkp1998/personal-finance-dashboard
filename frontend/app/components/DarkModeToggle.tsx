@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Dispatch, SetStateAction } from "react";
 
 interface DarkModeToggleProps {
@@ -8,6 +9,17 @@ interface DarkModeToggleProps {
 }
 
 export default function DarkModeToggle({ darkMode, setDarkMode }: DarkModeToggleProps) {
+  // Apply dark mode class to <body> on mount and when darkMode changes
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+      document.body.classList.add("dark"); // ✅ Ensure <body> gets dark mode
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.body.classList.remove("dark"); // ✅ Remove dark mode from <body>
+    }
+  }, [darkMode]);
+
   const toggleDarkMode = () => {
     const newDarkMode = !darkMode;
     setDarkMode(newDarkMode);
@@ -15,8 +27,10 @@ export default function DarkModeToggle({ darkMode, setDarkMode }: DarkModeToggle
 
     if (newDarkMode) {
       document.documentElement.classList.add("dark");
+      document.body.classList.add("dark"); // ✅ Apply dark mode to <body>
     } else {
       document.documentElement.classList.remove("dark");
+      document.body.classList.remove("dark"); // ✅ Remove from <body>
     }
   };
 

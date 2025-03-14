@@ -59,7 +59,7 @@ export default function Dashboard() {
       return;
     }
   
-    setTransactions(data.slice(0, 10));
+    setTransactions(data.slice(0,5));
     calculateSummary(data);
   };
   
