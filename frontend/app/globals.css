@@ -1,24 +1,22 @@
-/* src/app/globals.css */
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 20px;
-  background-color: #f4f4f4;
-}
-
-.container {
-  max-width: 800px;
-  margin: auto;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Optional: Custom styling tweaks */
+/* Light & Dark Mode */
 body {
-  font-family: 'Inter', sans-serif;
+  @apply font-sans bg-gray-100 text-gray-900 transition-colors duration-300;
+}
+
+.dark body {
+  @apply bg-gray-900 text-gray-100;
+}
+
+/* Container Styling */
+.container {
+  @apply max-w-2xl mx-auto p-6 rounded-lg shadow-lg;
+  background: white;
+}
+
+.dark .container {
+  background: #1e1e1e;
 }

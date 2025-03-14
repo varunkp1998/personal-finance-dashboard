@@ -56,8 +56,8 @@ export default function Profile() {
   }
 
   return (
-    <Container maxWidth="sm">
-      <Paper elevation={3} sx={{ padding: 4, mt: 6, textAlign: "center" }}>
+<Container maxWidth="sm" sx={{ mt: 12 }}>  {/* ✅ Add margin-top */}
+<Paper elevation={3} sx={{ padding: 4, mt: 6, textAlign: "center" }}>
         <Typography variant="h5" fontWeight="bold" gutterBottom>
           Profile Management
         </Typography>

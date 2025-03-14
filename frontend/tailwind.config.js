@@ -4,14 +4,9 @@ module.exports = {
     "./app/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: "class", // ✅ Ensures dark mode works by adding the 'dark' class to <html>
   theme: {
     extend: {},
   },
   plugins: [],
-};
-module.exports = {
-  darkMode: "class",
-  theme: {
-    extend: {},
-  },
 };

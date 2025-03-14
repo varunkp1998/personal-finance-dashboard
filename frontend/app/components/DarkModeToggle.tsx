@@ -1,4 +1,4 @@
-"use client"; // ✅ Ensures it runs only on the client side
+"use client"; // ✅ Required for client-side behavior
 
 import { useEffect, useState } from "react";
 
@@ -6,8 +6,9 @@ export default function DarkModeToggle() {
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    // Check if dark mode was previously enabled
-    if (localStorage.getItem("theme") === "dark") {
+    // Check if dark mode is stored in localStorage
+    const theme = localStorage.getItem("theme");
+    if (theme === "dark") {
       document.documentElement.classList.add("dark");
       setDarkMode(true);
     }
@@ -27,7 +28,7 @@ export default function DarkModeToggle() {
   return (
     <button
       onClick={toggleDarkMode}
-      className="p-2 bg-gray-200 dark:bg-gray-800 rounded-lg transition duration-300"
+      className="p-2 bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg transition duration-300"
     >
       {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
     </button>
