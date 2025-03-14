@@ -1,23 +1,20 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Light & Dark Mode */
-body {
-  @apply font-sans bg-gray-100 text-gray-900 transition-colors duration-300;
-  padding-top: 4rem; /* ✅ Add padding to push content below navbar */
+/* Ensure dark mode applies globally */
+html.dark {
+  background-color: #111; /* Dark background */
+  color: #fff; /* Light text */
 }
 
-.dark body {
-  @apply bg-gray-900 text-gray-100;
+/* Ensure components like body, buttons, and containers adjust to dark mode */
+body.dark {
+  background-color: #111;
+  color: #fff;
 }
 
-/* Container Styling */
-.container {
-  @apply max-w-2xl mx-auto p-6 rounded-lg shadow-lg;
-  background: white;
+/* Optional: Apply dark mode styles to specific elements */
+.dark .bg-gray-100 {
+  background-color: #1e1e1e !important;
 }
 
-.dark .container {
-  background: #1e1e1e;
+.dark .text-gray-900 {
+  color: #fff !important;
 }

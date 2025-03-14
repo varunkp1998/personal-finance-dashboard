@@ -31,7 +31,7 @@ export default function Layout({ children }: LayoutProps) {
       {pathname !== "/login" && pathname !== "/signup" && (
         <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
       )}
-      <main className={`min-h-screen ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
+      <main className={`min-h-screen transition-all duration-300 ease-in-out ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
         {children}
       </main>
     </div>
