@@ -9,9 +9,15 @@ interface DarkModeToggleProps {
 
 export default function DarkModeToggle({ darkMode, setDarkMode }: DarkModeToggleProps) {
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    localStorage.setItem("theme", darkMode ? "light" : "dark");
-    document.documentElement.classList.toggle("dark", !darkMode);
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem("theme", newDarkMode ? "dark" : "light");
+
+    if (newDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
   };
 
   return (
