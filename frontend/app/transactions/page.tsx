@@ -30,6 +30,10 @@ export default function Transactions() {
   const [category, setCategory] = useState("");
   const [uploading, setUploading] = useState(false);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const transactionsPerPage = 10;
+
   useEffect(() => {
     async function fetchData() {
       const data = await getTransactions();
@@ -88,6 +92,12 @@ export default function Transactions() {
     });
   };
 
+  // ✅ Pagination Logic
+  const indexOfLastTransaction = currentPage * transactionsPerPage;
+  const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
+  const currentTransactions = transactions.slice(indexOfFirstTransaction, indexOfLastTransaction);
+  const totalPages = Math.ceil(transactions.length / transactionsPerPage);
+
   return (
     <div className="p-6 mt-25 pt-16">
       <h2 className="text-3xl font-bold text-gray-800 text-center mb-6 pt-16">Transactions</h2>
@@ -139,7 +149,7 @@ export default function Transactions() {
         </CardContent>
       </Card>
 
-      {/* ✅ Transactions Table (Unchanged) */}
+      {/* ✅ Transactions Table */}
       <TableContainer component={Paper} className="shadow-md">
         <Table>
           <TableHead>
@@ -153,12 +163,12 @@ export default function Transactions() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {transactions.length === 0 ? (
+            {currentTransactions.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} align="center">No transactions found.</TableCell>
               </TableRow>
             ) : (
-              transactions.map((tx) => (
+              currentTransactions.map((tx) => (
                 <TableRow key={tx.id}>
                   <TableCell>{new Date(tx.date).toLocaleDateString()}</TableCell>
                   <TableCell>{tx.description}</TableCell>
@@ -178,6 +188,30 @@ export default function Transactions() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* ✅ Pagination Controls */}
+      <Grid container justifyContent="center" alignItems="center" className="mt-4">
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className="mr-2"
+        >
+          Previous
+        </Button>
+        <span className="mx-4 text-lg font-bold">
+          Page {currentPage} of {totalPages}
+        </span>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </Button>
+      </Grid>
     </div>
   );
 }
