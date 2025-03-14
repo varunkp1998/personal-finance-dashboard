@@ -97,10 +97,8 @@ export default function Dashboard() {
       </div>
     );
   }
-  <Navbar />
-
   return (
-
+<>  <Navbar />
     <section className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-4xl font-bold text-gray-800 text-center mb-6">Dashboard</h1>
 
@@ -216,5 +214,7 @@ export default function Dashboard() {
         </Grid>
       )}
     </section>
+    </>
+
   );
 }

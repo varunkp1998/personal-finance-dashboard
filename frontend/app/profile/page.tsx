@@ -2,6 +2,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
+import { 
+  Container, Paper, Typography, TextField, Button, Alert, CircularProgress, Box 
+} from "@mui/material";
 
 export default function Profile() {
   const router = useRouter();
@@ -45,45 +48,51 @@ export default function Profile() {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
-    <div className="flex flex-col items-center min-h-screen p-6">
-      <h2 className="text-2xl font-bold mb-4">Profile Management</h2>
+    <Container maxWidth="sm">
+      <Paper elevation={3} sx={{ padding: 4, mt: 6, textAlign: "center" }}>
+        <Typography variant="h5" fontWeight="bold" gutterBottom>
+          Profile Management
+        </Typography>
 
-      {error && <p className="text-red-500">{error}</p>}
-      {message && <p className="text-green-500">{message}</p>}
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {message && <Alert severity="success" sx={{ mb: 2 }}>{message}</Alert>}
 
-      <form onSubmit={handleUpdate} className="w-full max-w-md space-y-4">
-        <div>
-          <label className="block font-medium text-gray-700">Name</label>
-          <input
-            type="text"
-            className="w-full p-2 border rounded"
+        <form onSubmit={handleUpdate}>
+          {/* Name Field */}
+          <TextField
+            label="Name"
+            fullWidth
+            variant="outlined"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            sx={{ mb: 2 }}
           />
-        </div>
 
-        <div>
-          <label className="block font-medium text-gray-700">Email</label>
-          <input
-            type="email"
-            className="w-full p-2 border rounded bg-gray-100 cursor-not-allowed"
+          {/* Email Field (Disabled) */}
+          <TextField
+            label="Email"
+            fullWidth
+            variant="outlined"
             value={email}
             disabled
+            sx={{ mb: 2 }}
           />
-        </div>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Update Profile
-        </button>
-      </form>
-    </div>
+          {/* Update Button */}
+          <Button type="submit" variant="contained" color="primary" fullWidth>
+            Update Profile
+          </Button>
+        </form>
+      </Paper>
+    </Container>
   );
 }
