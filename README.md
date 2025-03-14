@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+#  Personal Finance Dashboard  
 
-## Getting Started
+A **full-stack** personal finance dashboard built with **Next.js**, **Supabase**, and **MUI**, designed to track transactions, and net worth.  
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Tech Stack  
+
+- **Frontend**: Next.js (React), TypeScript, Tailwind CSS, MUI  
+- **Backend**: Supabase (PostgreSQL), API Integrations  
+- **Authentication**: Supabase Auth (JWT-based)  
+- **Storage**: LocalStorage (Dark Mode), Supabase Database  
+- **Security**: SQL Injection & XSS Protection, CSRF Protection  
+
+---
+
+##  Features Implemented  
+
+###  **Core Features**  
+- **User Authentication** (Sign Up, Login, Logout)  
+- **Transaction Management** (Add, Delete, Import via CSV)  
+- **Pagination** (10 transactions per page)  
+- **Net Worth Calculation** (Income vs. Expenses)  
+
+###  **UI/UX Enhancements**  
+- **Dark Mode Toggle** (Stored in `localStorage`)  
+- **Responsive Design** (Mobile & Desktop Support)  
+- **Animations & Theming** (Better UX)  
+
+###  **Security Features**  
+- **JWT-Based Authorization**  
+- **CSRF & XSS Protection**  
+- **SQL Injection Prevention**  
+
+---
+
+## Setup Instructions  
+
+### 1️⃣ **Clone the Repository**  
+```sh
+git clone https://github.com/your-username/personal-finance-dashboard.git
+cd personal-finance-dashboard
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2️⃣ **Install Dependencies**  
+```sh
+npm install
+# OR
+yarn install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3️⃣ **Set Up Supabase**  
+- Create a [Supabase](https://supabase.com) project  
+- Get your **API Keys** & **Database URL**  
+- Add them to `.env.local`  
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-## Learn More
+### 4️⃣ **Run the App Locally**  
+```sh
+npm run dev
+# OR
+yarn dev
+```
+App runs at **`http://localhost:3000`** 
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+##  How to Use  
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+###  **1. Login or Sign Up**  
+- Users must authenticate before accessing the dashboard  
 
-## Deploy on Vercel
+###  **2. Add Transactions**  
+- Fill in **Description, Amount, Type (Income/Expense), Category**  
+- Click **"Add"** to save the transaction  
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+###  **3. Import CSV Transactions**  
+- Upload a `.csv` file with transactions  
+- The app parses and stores the records automatically  
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+###  **4. Navigate Transactions (Pagination)**  
+- **Only 10 transactions per page**  
+- **"Next" & "Previous"** buttons to browse  
+
+### 🌑 **5. Toggle Dark Mode**  
+- Click the **🌙/☀️ button** in the navbar  
+- Saves preference in `localStorage`  
+
+---
+
+##  Deployment  
+### **Vercel**  
+To deploy on **Vercel**, run:  
+```sh
+vercel
+```
+Or push to GitHub & connect the repo to **Vercel** for auto-deploys.  
+
+### **Render (For Supabase Functions, Optional)**  
+Use [Render](https://render.com) if deploying backend functions separately.  
+
+ **Start tracking your finances today!**  
