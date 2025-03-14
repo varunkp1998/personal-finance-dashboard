@@ -104,7 +104,6 @@ export default function Dashboard() {
 
   return (
     <>
-      <Navbar />
       <section className="p-6 bg-gray-100 min-h-screen mt-16"> 
 
         <h1 className="text-4xl font-bold text-gray-800 text-center mb-6">Dashboard</h1>

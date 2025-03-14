@@ -57,7 +57,7 @@ export default function Transactions() {
 
   return (
 
-    <div className="p-6 mt-16">  {/* ✅ Add margin-top to push content down */}
+    <div className="p-6 mt-25">  {/* ✅ Add margin-top to push content down */}
       <h2 className="text-3xl font-bold text-gray-800 text-center mb-6">Transactions</h2>
 
       {/* Transaction Form */}

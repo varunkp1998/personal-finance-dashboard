@@ -5,6 +5,7 @@
 /* Light & Dark Mode */
 body {
   @apply font-sans bg-gray-100 text-gray-900 transition-colors duration-300;
+  padding-top: 4rem; /* ✅ Add padding to push content below navbar */
 }
 
 .dark body {

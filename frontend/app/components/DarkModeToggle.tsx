@@ -1,28 +1,17 @@
-"use client"; // ✅ Required for client-side behavior
+"use client";
 
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 
-export default function DarkModeToggle() {
-  const [darkMode, setDarkMode] = useState(false);
+interface DarkModeToggleProps {
+  darkMode: boolean;
+  setDarkMode: Dispatch<SetStateAction<boolean>>;
+}
 
-  useEffect(() => {
-    // Check if dark mode is stored in localStorage
-    const theme = localStorage.getItem("theme");
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-      setDarkMode(true);
-    }
-  }, []);
-
+export default function DarkModeToggle({ darkMode, setDarkMode }: DarkModeToggleProps) {
   const toggleDarkMode = () => {
-    if (darkMode) {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    } else {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    }
     setDarkMode(!darkMode);
+    localStorage.setItem("theme", darkMode ? "light" : "dark");
+    document.documentElement.classList.toggle("dark", !darkMode);
   };
 
   return (
