@@ -104,3 +104,4 @@ Or push to GitHub & connect the repo to **Vercel** for auto-deploys.
 Use [Render](https://render.com) if deploying backend functions separately.  
 
  **Start tracking your finances today!**  
+![IMG_6708](https://github.com/user-attachments/assets/faef41ca-8de6-4032-ab7c-620c721eaae8)
