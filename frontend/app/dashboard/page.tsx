@@ -104,9 +104,9 @@ export default function Dashboard() {
 
   return (
     <>
-      <section className="p-6 bg-gray-100 min-h-screen mt-25"> 
+      <section className="p-6 bg-gray-100 min-h-screen mt-25 pt-16"> 
 
-        <h1 className="text-4xl font-bold text-gray-800 text-center mb-6">Dashboard</h1>
+        <h1 className="text-4xl font-bold text-gray-800 text-center mb-6 pt-16">Dashboard</h1>
 
         {/* Summary Cards */}
         <Grid container spacing={3} justifyContent="center">

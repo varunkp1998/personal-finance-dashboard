@@ -50,7 +50,7 @@ export default function Layout({ children }: LayoutProps) {
       )}
 
       {/* ✅ Ensure dark mode applies to all content */}
-      <main className={`min-h-screen ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
+      <main className={`min-h-screen pt-16 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
         {children}
       </main>
     </div>
