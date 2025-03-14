@@ -10,6 +10,7 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  Box,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useRouter } from "next/navigation";
@@ -43,37 +44,38 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
   return (
     <>
       <AppBar position="fixed" sx={{ backgroundColor: darkMode ? "#1e1e1e" : "#2c3e50" }}>
-        <Toolbar>
-          {/* Mobile Menu Button */}
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          {/* ✅ Mobile Menu Button */}
           <IconButton
             edge="start"
             color="inherit"
             aria-label="menu"
             onClick={handleToggleMobileMenu}
-            sx={{ display: { xs: "block", md: "none" } }} // ✅ Hidden on large screens
+            sx={{ display: { xs: "block", md: "none" } }}
           >
             <MenuIcon />
           </IconButton>
 
-          {/* ✅ Shrinking Title */}
+          {/* ✅ Responsive Title */}
           <Typography
             variant="h6"
             sx={{
               flexGrow: 1,
-              fontSize: { xs: "1rem", sm: "1.5rem" }, // ✅ Shrinks title text on small screens
+              fontSize: { xs: "1rem", sm: "1.5rem" },
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
+              textAlign: { xs: "center", md: "left" },
             }}
           >
             Personal Finance Dashboard
           </Typography>
 
-          {/* Dark Mode Toggle */}
+          {/* ✅ Dark Mode Toggle */}
           <DarkModeToggle darkMode={darkMode} setDarkMode={setDarkMode} />
 
           {/* ✅ Desktop Navigation Links - Hidden on Mobile */}
-          <div className="hidden md:flex space-x-4">
+          <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2 }}>
             <Button color="inherit" component={Link} href="/dashboard">
               Dashboard
             </Button>
@@ -83,10 +85,10 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
             <Button color="inherit" component={Link} href="/profile">
               Profile
             </Button>
-            <Button onClick={handleLogout} variant="contained" color="error" sx={{ marginLeft: 2 }}>
+            <Button onClick={handleLogout} variant="contained" color="error">
               Logout
             </Button>
-          </div>
+          </Box>
         </Toolbar>
       </AppBar>
 
