@@ -5,6 +5,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
 import Link from "next/link";
+import DarkModeToggle from "./DarkModeToggle"; // ✅ Import DarkModeToggle
 
 export default function Navbar() {
   const router = useRouter();
@@ -42,6 +43,7 @@ export default function Navbar() {
         <Button color="inherit" component={Link} href="/profile">
           Profile
         </Button>
+        <DarkModeToggle />
 
         {/* ✅ Logout Button */}
         <Button
