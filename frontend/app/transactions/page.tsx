@@ -11,7 +11,13 @@ import {
   Button,
   Grid,
   Paper,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  IconButton,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 interface Transaction {
   id?: number;
@@ -19,35 +25,39 @@ interface Transaction {
   amount: number;
   category: string;
   description: string;
+  type: string; // ✅ Added field for Income/Expense
 }
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [darkMode, setDarkMode] = useState(false); // ✅ Dark mode support
+
   const [newTransaction, setNewTransaction] = useState<Transaction>({
     date: "",
     amount: 0,
     category: "",
     description: "",
+    type: "income",
   });
 
-  // ✅ Fetch transactions on load
   useEffect(() => {
     async function fetchTransactions() {
       const { data, error } = await supabase
         .from("transactions")
         .select("*")
         .order("date", { ascending: false });
-  
+
       if (error) {
         console.error("Error fetching transactions:", error.message);
       } else {
-        setTransactions(data ?? []); // ✅ Ensure `transactions` is always an array
+        setTransactions(data ?? []);
       }
     }
     fetchTransactions();
   }, []);
-  // ✅ Handle CSV File Upload & Import
+
+  // ✅ Handle CSV Upload
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -62,19 +72,16 @@ export default function Transactions() {
           amount: parseFloat(row.amount),
           category: row.category,
           description: row.description,
+          type: row.type || "expense",
         }));
 
-        // ✅ Insert into Supabase
         const { data, error } = await supabase
-  .from("transactions")
-  .insert(parsedData)
-  .select("*"); // ✅ Ensures `data` is not null
+          .from("transactions")
+          .insert(parsedData)
+          .select("*");
 
-if (error) {
-  console.error("Error inserting transactions:", error.message);
-} else {
-  setTransactions([...transactions, ...(data ?? [])]); // ✅ Prevents null from being spread
-}
+        if (error) console.error("Error inserting transactions:", error.message);
+        else setTransactions([...transactions, ...(data ?? [])]);
 
         setUploading(false);
       },
@@ -88,15 +95,29 @@ if (error) {
       return;
     }
 
-    const { data, error } = await supabase.from("transactions").insert([newTransaction]);
+    const { data, error } = await supabase
+      .from("transactions")
+      .insert([newTransaction])
+      .select("*");
+
     if (error) console.error("Error adding transaction:", error.message);
     else setTransactions([...(data || []), ...transactions]);
 
-    setNewTransaction({ date: "", amount: 0, category: "", description: "" });
+    setNewTransaction({ date: "", amount: 0, category: "", description: "", type: "income" });
+  };
+
+  // ✅ Handle Transaction Deletion
+  const handleDelete = async (id: number) => {
+    const { error } = await supabase.from("transactions").delete().eq("id", id);
+    if (error) {
+      console.error("Error deleting transaction:", error.message);
+      return;
+    }
+    setTransactions(transactions.filter((txn) => txn.id !== id));
   };
 
   return (
-    <div className="min-h-screen pt-16 p-6">
+    <div className={`min-h-screen pt-16 p-6 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100"}`}>
       <Typography variant="h4" gutterBottom>
         Transactions
       </Typography>
@@ -137,6 +158,18 @@ if (error) {
               />
             </Grid>
             <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel>Type</InputLabel>
+                <Select
+                  value={newTransaction.type}
+                  onChange={(e) => setNewTransaction({ ...newTransaction, type: e.target.value })}
+                >
+                  <MenuItem value="income">Income</MenuItem>
+                  <MenuItem value="expense">Expense</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label="Category"
@@ -144,7 +177,7 @@ if (error) {
                 onChange={(e) => setNewTransaction({ ...newTransaction, category: e.target.value })}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
                 label="Description (Optional)"
@@ -161,32 +194,33 @@ if (error) {
         </CardContent>
       </Card>
 
-      {/* ✅ Transactions Table */}
-      <Paper elevation={3} className="p-4">
-        <Typography variant="h6" gutterBottom>
-          Recent Transactions
-        </Typography>
-        <table className="w-full border-collapse mt-2">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border p-2">Date</th>
-              <th className="border p-2">Amount</th>
-              <th className="border p-2">Category</th>
-              <th className="border p-2">Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((txn, index) => (
-              <tr key={index} className="border">
-                <td className="p-2">{txn.date}</td>
-                <td className="p-2">{txn.amount}</td>
-                <td className="p-2">{txn.category}</td>
-                <td className="p-2">{txn.description}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </Paper>
+      {/* ✅ Transactions Grid with MUI Cards */}
+      <Grid container spacing={3}>
+        {transactions.map((txn) => (
+          <Grid item xs={12} sm={6} md={4} key={txn.id}>
+            <Card sx={{ p: 2, bgcolor: txn.type === "income" ? "#e3fcef" : "#ffe6e6" }}>
+              <CardContent>
+                <Typography variant="h6" fontWeight="bold">
+                  {txn.category}
+                </Typography>
+                <Typography>
+                  <b>Date:</b> {new Date(txn.date).toLocaleDateString()}
+                </Typography>
+                <Typography>
+                  <b>Amount:</b> ₹{txn.amount.toLocaleString()}
+                </Typography>
+                <Typography>
+                  <b>Type:</b> {txn.type.charAt(0).toUpperCase() + txn.type.slice(1)}
+                </Typography>
+                {txn.description && <Typography><b>Description:</b> {txn.description}</Typography>}
+                <IconButton color="error" onClick={() => handleDelete(txn.id as number)} sx={{ mt: 1 }}>
+                  <DeleteIcon />
+                </IconButton>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
     </div>
   );
 }
