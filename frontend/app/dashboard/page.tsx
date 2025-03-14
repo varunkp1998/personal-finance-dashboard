@@ -104,6 +104,8 @@ export default function Dashboard() {
 
   return (
     <>
+    <></>
+    <></>
       <section className="p-6 bg-gray-100 min-h-screen mt-25 pt-16"> 
 
         <h1 className="text-4xl font-bold text-gray-800 text-center mb-6 pt-16">Dashboard</h1>

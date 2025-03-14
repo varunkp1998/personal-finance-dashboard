@@ -1,133 +1,192 @@
 "use client";
-import { useEffect, useState } from "react";
-import { getTransactions, addTransaction, deleteTransaction } from "../lib/transactions";
+
+import { useState, useEffect } from "react";
+import { supabase } from "../lib/supabase";
+import Papa from "papaparse"; // ✅ Install via `npm install papaparse`
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
   Button,
   Grid,
-  TextField,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
+  Paper,
 } from "@mui/material";
 
+interface Transaction {
+  id?: number;
+  date: string;
+  amount: number;
+  category: string;
+  description: string;
+}
+
 export default function Transactions() {
-  const [transactions, setTransactions] = useState([]);
-  const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState("");
-  const [type, setType] = useState("income");
-  const [category, setCategory] = useState("");
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [newTransaction, setNewTransaction] = useState<Transaction>({
+    date: "",
+    amount: 0,
+    category: "",
+    description: "",
+  });
 
+  // ✅ Fetch transactions on load
   useEffect(() => {
-    async function fetchData() {
-      const data = await getTransactions();
-      if (Array.isArray(data)) setTransactions(data);
-      else console.error("Error fetching transactions:", data);
+    async function fetchTransactions() {
+      const { data, error } = await supabase
+        .from("transactions")
+        .select("*")
+        .order("date", { ascending: false });
+  
+      if (error) {
+        console.error("Error fetching transactions:", error.message);
+      } else {
+        setTransactions(data ?? []); // ✅ Ensure `transactions` is always an array
+      }
     }
-    fetchData();
+    fetchTransactions();
   }, []);
+  // ✅ Handle CSV File Upload & Import
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-  const handleAddTransaction = async () => {
-    if (!description || !amount || !category) {
-      alert("All fields are required!");
+    setUploading(true);
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (result) => {
+        const parsedData: Transaction[] = result.data.map((row: any) => ({
+          date: row.date,
+          amount: parseFloat(row.amount),
+          category: row.category,
+          description: row.description,
+        }));
+
+        // ✅ Insert into Supabase
+        const { data, error } = await supabase
+  .from("transactions")
+  .insert(parsedData)
+  .select("*"); // ✅ Ensures `data` is not null
+
+if (error) {
+  console.error("Error inserting transactions:", error.message);
+} else {
+  setTransactions([...transactions, ...(data ?? [])]); // ✅ Prevents null from being spread
+}
+
+        setUploading(false);
+      },
+    });
+  };
+
+  // ✅ Handle Manual Transaction Submission
+  const handleManualSubmit = async () => {
+    if (!newTransaction.date || !newTransaction.amount || !newTransaction.category) {
+      alert("Please fill all fields.");
       return;
     }
 
-    await addTransaction(description, parseFloat(amount), type, category);
-    setDescription("");
-    setAmount("");
-    setCategory("");
+    const { data, error } = await supabase.from("transactions").insert([newTransaction]);
+    if (error) console.error("Error adding transaction:", error.message);
+    else setTransactions([...(data || []), ...transactions]);
 
-    const updatedTransactions = await getTransactions();
-    if (Array.isArray(updatedTransactions)) setTransactions(updatedTransactions);
-  };
-
-  const handleDelete = async (id: number) => {
-    await deleteTransaction(id);
-    const updatedTransactions = await getTransactions();
-    if (Array.isArray(updatedTransactions)) setTransactions(updatedTransactions);
+    setNewTransaction({ date: "", amount: 0, category: "", description: "" });
   };
 
   return (
+    <div className="min-h-screen pt-16 p-6">
+      <Typography variant="h4" gutterBottom>
+        Transactions
+      </Typography>
 
-    <div className="p-6 mt-25 pt-16">  {/* ✅ Add margin-top to push content down */}
-      <h2 className="text-3xl font-bold text-gray-800 text-center mb-6 pt-16">Transactions</h2>
-
-      {/* Transaction Form */}
-      <Paper className="p-6 mb-6 shadow-md">
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={3}>
-            <TextField fullWidth label="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
-          </Grid>
-          <Grid item xs={12} md={2}>
-            <TextField fullWidth label="Amount (₹)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
-          </Grid>
-          <Grid item xs={12} md={2}>
-            <FormControl fullWidth>
-              <InputLabel>Type</InputLabel>
-              <Select value={type} onChange={(e) => setType(e.target.value)}>
-                <MenuItem value="income">Income</MenuItem>
-                <MenuItem value="expense">Expense</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <TextField fullWidth label="Category" value={category} onChange={(e) => setCategory(e.target.value)} />
-          </Grid>
-          <Grid item xs={12} md={2} className="flex justify-center items-center">
-            <Button variant="contained" color="primary" onClick={handleAddTransaction} fullWidth>
-              Add
-            </Button>
-          </Grid>
-        </Grid>
+      {/* ✅ Upload File */}
+      <Paper elevation={3} className="p-4 mb-4">
+        <Typography variant="h6" gutterBottom>
+          Upload Transactions (CSV)
+        </Typography>
+        <input type="file" accept=".csv" onChange={handleFileUpload} disabled={uploading} />
+        {uploading && <Typography color="textSecondary">Uploading...</Typography>}
       </Paper>
 
-      {/* Transactions Table */}
-      <TableContainer component={Paper} className="shadow-md">
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "#f0f0f0" }}>
-              <TableCell><b>Date</b></TableCell>
-              <TableCell><b>Description</b></TableCell>
-              <TableCell><b>Category</b></TableCell>
-              <TableCell><b>Type</b></TableCell>
-              <TableCell><b>Amount (₹)</b></TableCell>
-              <TableCell><b>Actions</b></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {transactions.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} align="center">No transactions found.</TableCell>
-              </TableRow>
-            ) : (
-              transactions.map((tx) => (
-                <TableRow key={tx.id}>
-                  <TableCell>{new Date(tx.date).toLocaleDateString()}</TableCell>
-                  <TableCell>{tx.description}</TableCell>
-                  <TableCell>{tx.category}</TableCell>
-                  <TableCell>{tx.type === "income" ? "Income" : "Expense"}</TableCell>
-                  <TableCell sx={{ fontWeight: "bold", color: tx.type === "income" ? "green" : "red" }}>
-                    ₹{tx.amount.toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    <Button size="small" color="error" onClick={() => handleDelete(tx.id)}>
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      {/* ✅ Manual Entry Form inside MUI Card */}
+      <Card elevation={3} className="mb-4">
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Add Transaction
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Date"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                value={newTransaction.date}
+                onChange={(e) => setNewTransaction({ ...newTransaction, date: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Amount"
+                type="number"
+                value={newTransaction.amount}
+                onChange={(e) => setNewTransaction({ ...newTransaction, amount: Number(e.target.value) })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Category"
+                value={newTransaction.category}
+                onChange={(e) => setNewTransaction({ ...newTransaction, category: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Description (Optional)"
+                value={newTransaction.description}
+                onChange={(e) => setNewTransaction({ ...newTransaction, description: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button variant="contained" color="primary" onClick={handleManualSubmit} fullWidth>
+                Add Transaction
+              </Button>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+
+      {/* ✅ Transactions Table */}
+      <Paper elevation={3} className="p-4">
+        <Typography variant="h6" gutterBottom>
+          Recent Transactions
+        </Typography>
+        <table className="w-full border-collapse mt-2">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border p-2">Date</th>
+              <th className="border p-2">Amount</th>
+              <th className="border p-2">Category</th>
+              <th className="border p-2">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.map((txn, index) => (
+              <tr key={index} className="border">
+                <td className="p-2">{txn.date}</td>
+                <td className="p-2">{txn.amount}</td>
+                <td className="p-2">{txn.category}</td>
+                <td className="p-2">{txn.description}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Paper>
     </div>
   );
 }
