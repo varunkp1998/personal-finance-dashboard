@@ -6,10 +6,10 @@ import { supabase } from "../lib/supabase";
 import Chart from "../components/Chart";
 import PieChart from "../components/PieChart";
 import Navbar from "../components/Navbar";
-import { 
-  Card, CardContent, Typography, Grid, Table, TableBody, 
-  TableCell, TableContainer, TableHead, TableRow, Paper, 
-  IconButton 
+import {
+  Card, CardContent, Typography, Grid, Table, TableBody,
+  TableCell, TableContainer, TableHead, TableRow, Paper,
+  IconButton
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -47,25 +47,25 @@ export default function Dashboard() {
 
   const fetchTransactions = async () => {
     if (!user) return;
-
+  
     const { data, error } = await supabase
       .from("transactions")
       .select("*")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-
+      .order("created_at", { ascending: false })
+  
     if (error) {
       console.error("Error fetching transactions:", error.message);
       return;
     }
-
-    setTransactions(data);
+  
+    setTransactions(data.slice(0, 10));
     calculateSummary(data);
   };
+  
 
   const calculateSummary = (data) => {
-    let income = 0,
-      expenses = 0;
+    let income = 0, expenses = 0;
 
     data.forEach((transaction) => {
       if (transaction.type.toLowerCase() === "income") {
@@ -93,7 +93,6 @@ export default function Dashboard() {
     setTransactions(transactions.filter((txn) => txn.id !== id));
   };
 
-  // ✅ Prevent dashboard from rendering before authentication check
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen text-xl font-bold text-gray-700">
@@ -104,11 +103,11 @@ export default function Dashboard() {
 
   return (
     <>
-    <></>
-    <></>
-      <section className="p-6 bg-gray-100 min-h-screen mt-25 pt-16"> 
 
-        <h1 className="text-4xl font-bold text-gray-800 text-center mb-6 pt-16">Dashboard</h1>
+      <section className="p-6 bg-gray-100 min-h-screen mt-20 pt-24">
+        <h1 className="text-4xl font-bold text-gray-800 text-center mb-10">
+          Dashboard
+        </h1>
 
         {/* Summary Cards */}
         <Grid container spacing={3} justifyContent="center">
@@ -158,7 +157,9 @@ export default function Dashboard() {
             Recent Transactions
           </Typography>
           {transactions.length === 0 ? (
-            <Typography className="text-gray-500 text-center">No transactions found.</Typography>
+            <Typography className="text-gray-500 text-center">
+              No transactions found.
+            </Typography>
           ) : (
             <TableContainer component={Paper}>
               <Table>
@@ -199,8 +200,8 @@ export default function Dashboard() {
         {/* Charts Section */}
         {transactions.length > 0 && (
           <Grid container spacing={3} className="mt-6">
-            <Grid item xs={12} md={6}>
-              <Card sx={{ p: 3, boxShadow: 3 }}>
+            <Grid item xs={12} md={6} className="flex justify-center">
+              <Card sx={{ p: 3, boxShadow: 3, width: "100%" }}>
                 <Typography variant="h6" className="text-gray-700 text-center">
                   Income vs Expenses
                 </Typography>
@@ -209,8 +210,8 @@ export default function Dashboard() {
                 </div>
               </Card>
             </Grid>
-            <Grid item xs={12} md={6}>
-              <Card sx={{ p: 3, boxShadow: 3 }}>
+            <Grid item xs={12} md={6} className="flex justify-center">
+              <Card sx={{ p: 3, boxShadow: 3, width: "100%" }}>
                 <Typography variant="h6" className="text-gray-700 text-center">
                   Expense Breakdown
                 </Typography>
