@@ -1,6 +1,11 @@
 {
-    "name": "Finance Dashboard",
-    "short_name": "Finance",
+    "name": "Personal Finance Dashboard",
+    "short_name": "Finance Dashboard",
+    "description": "A personal finance tracker with dark mode and PWA support.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#2c3e50",
     "icons": [
       {
         "src": "/icon-192x192.png",
@@ -12,10 +17,6 @@
         "sizes": "512x512",
         "type": "image/png"
       }
-    ],
-    "start_url": "/",
-    "display": "standalone",
-    "theme_color": "#2c3e50",
-    "background_color": "#ffffff"
+    ]
   }
   
