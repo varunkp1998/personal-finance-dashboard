@@ -1,61 +1,64 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { supabase } from "../lib/supabase";
-import Papa from "papaparse"; // ✅ Install via `npm install papaparse`
+import { useEffect, useState } from "react";
+import { getTransactions, addTransaction, deleteTransaction } from "../lib/transactions";
 import {
-  Card,
-  CardContent,
-  Typography,
-  TextField,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
   Button,
   Grid,
-  Paper,
-  MenuItem,
+  TextField,
   Select,
-  FormControl,
+  MenuItem,
   InputLabel,
-  IconButton,
+  FormControl,
+  Card,
+  CardContent,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-
-interface Transaction {
-  id?: number;
-  date: string;
-  amount: number;
-  category: string;
-  description: string;
-  type: string; // ✅ Added field for Income/Expense
-}
+import Papa from "papaparse"; // ✅ Install via `npm install papaparse`
 
 export default function Transactions() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState([]);
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState("");
+  const [type, setType] = useState("income");
+  const [category, setCategory] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [darkMode, setDarkMode] = useState(false); // ✅ Dark mode support
-
-  const [newTransaction, setNewTransaction] = useState<Transaction>({
-    date: "",
-    amount: 0,
-    category: "",
-    description: "",
-    type: "income",
-  });
 
   useEffect(() => {
-    async function fetchTransactions() {
-      const { data, error } = await supabase
-        .from("transactions")
-        .select("*")
-        .order("date", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching transactions:", error.message);
-      } else {
-        setTransactions(data ?? []);
-      }
+    async function fetchData() {
+      const data = await getTransactions();
+      if (Array.isArray(data)) setTransactions(data);
+      else console.error("Error fetching transactions:", data);
     }
-    fetchTransactions();
+    fetchData();
   }, []);
+
+  const handleAddTransaction = async () => {
+    if (!description || !amount || !category) {
+      alert("All fields are required!");
+      return;
+    }
+
+    await addTransaction(description, parseFloat(amount), type, category);
+    setDescription("");
+    setAmount("");
+    setCategory("");
+
+    const updatedTransactions = await getTransactions();
+    if (Array.isArray(updatedTransactions)) setTransactions(updatedTransactions);
+  };
+
+  const handleDelete = async (id: number) => {
+    await deleteTransaction(id);
+    const updatedTransactions = await getTransactions();
+    if (Array.isArray(updatedTransactions)) setTransactions(updatedTransactions);
+  };
 
   // ✅ Handle CSV Upload
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,160 +70,114 @@ export default function Transactions() {
       header: true,
       skipEmptyLines: true,
       complete: async (result) => {
-        const parsedData: Transaction[] = result.data.map((row: any) => ({
-          date: row.date,
-          amount: parseFloat(row.amount),
-          category: row.category,
+        const parsedData = result.data.map((row: any) => ({
           description: row.description,
+          amount: parseFloat(row.amount),
           type: row.type || "expense",
+          category: row.category,
         }));
 
-        const { data, error } = await supabase
-          .from("transactions")
-          .insert(parsedData)
-          .select("*");
+        // Insert into database
+        await Promise.all(parsedData.map((txn) => addTransaction(txn.description, txn.amount, txn.type, txn.category)));
 
-        if (error) console.error("Error inserting transactions:", error.message);
-        else setTransactions([...transactions, ...(data ?? [])]);
-
+        // Refresh transactions
+        const updatedTransactions = await getTransactions();
+        if (Array.isArray(updatedTransactions)) setTransactions(updatedTransactions);
         setUploading(false);
       },
     });
   };
 
-  // ✅ Handle Manual Transaction Submission
-  const handleManualSubmit = async () => {
-    if (!newTransaction.date || !newTransaction.amount || !newTransaction.category) {
-      alert("Please fill all fields.");
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from("transactions")
-      .insert([newTransaction])
-      .select("*");
-
-    if (error) console.error("Error adding transaction:", error.message);
-    else setTransactions([...(data || []), ...transactions]);
-
-    setNewTransaction({ date: "", amount: 0, category: "", description: "", type: "income" });
-  };
-
-  // ✅ Handle Transaction Deletion
-  const handleDelete = async (id: number) => {
-    const { error } = await supabase.from("transactions").delete().eq("id", id);
-    if (error) {
-      console.error("Error deleting transaction:", error.message);
-      return;
-    }
-    setTransactions(transactions.filter((txn) => txn.id !== id));
-  };
-
   return (
-    <div className={`min-h-screen pt-16 p-6 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100"}`}>
-      <Typography variant="h4" gutterBottom>
-        Transactions
-      </Typography>
+    <div className="p-6 mt-25 pt-16">
+      <h2 className="text-3xl font-bold text-gray-800 text-center mb-6 pt-16">Transactions</h2>
 
-      {/* ✅ Upload File */}
-      <Paper elevation={3} className="p-4 mb-4">
-        <Typography variant="h6" gutterBottom>
-          Upload Transactions (CSV)
-        </Typography>
-        <input type="file" accept=".csv" onChange={handleFileUpload} disabled={uploading} />
-        {uploading && <Typography color="textSecondary">Uploading...</Typography>}
-      </Paper>
-
-      {/* ✅ Manual Entry Form inside MUI Card */}
-      <Card elevation={3} className="mb-4">
+      {/* ✅ Form inside MUI Card */}
+      <Card className="mb-6 shadow-md">
         <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Add Transaction
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Date"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-                value={newTransaction.date}
-                onChange={(e) => setNewTransaction({ ...newTransaction, date: e.target.value })}
-              />
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} md={3}>
+              <TextField fullWidth label="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Amount"
-                type="number"
-                value={newTransaction.amount}
-                onChange={(e) => setNewTransaction({ ...newTransaction, amount: Number(e.target.value) })}
-              />
+            <Grid item xs={12} md={2}>
+              <TextField fullWidth label="Amount (₹)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} md={2}>
               <FormControl fullWidth>
                 <InputLabel>Type</InputLabel>
-                <Select
-                  value={newTransaction.type}
-                  onChange={(e) => setNewTransaction({ ...newTransaction, type: e.target.value })}
-                >
+                <Select value={type} onChange={(e) => setType(e.target.value)}>
                   <MenuItem value="income">Income</MenuItem>
                   <MenuItem value="expense">Expense</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Category"
-                value={newTransaction.category}
-                onChange={(e) => setNewTransaction({ ...newTransaction, category: e.target.value })}
-              />
+            <Grid item xs={12} md={3}>
+              <TextField fullWidth label="Category" value={category} onChange={(e) => setCategory(e.target.value)} />
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Description (Optional)"
-                value={newTransaction.description}
-                onChange={(e) => setNewTransaction({ ...newTransaction, description: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" onClick={handleManualSubmit} fullWidth>
-                Add Transaction
+            <Grid item xs={12} md={2} className="flex justify-center items-center">
+              <Button variant="contained" color="primary" onClick={handleAddTransaction} fullWidth>
+                Add
               </Button>
+            </Grid>
+
+            {/* ✅ Upload CSV Button */}
+            <Grid item xs={12} md={12} className="flex justify-center items-center mt-2">
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+                style={{ display: "none" }}
+                id="csv-upload"
+              />
+              <label htmlFor="csv-upload">
+                <Button variant="contained" component="span" color="secondary" disabled={uploading}>
+                  {uploading ? "Uploading..." : "Upload CSV"}
+                </Button>
+              </label>
             </Grid>
           </Grid>
         </CardContent>
       </Card>
 
-      {/* ✅ Transactions Grid with MUI Cards */}
-      <Grid container spacing={3}>
-        {transactions.map((txn) => (
-          <Grid item xs={12} sm={6} md={4} key={txn.id}>
-            <Card sx={{ p: 2, bgcolor: txn.type === "income" ? "#e3fcef" : "#ffe6e6" }}>
-              <CardContent>
-                <Typography variant="h6" fontWeight="bold">
-                  {txn.category}
-                </Typography>
-                <Typography>
-                  <b>Date:</b> {new Date(txn.date).toLocaleDateString()}
-                </Typography>
-                <Typography>
-                  <b>Amount:</b> ₹{txn.amount.toLocaleString()}
-                </Typography>
-                <Typography>
-                  <b>Type:</b> {txn.type.charAt(0).toUpperCase() + txn.type.slice(1)}
-                </Typography>
-                {txn.description && <Typography><b>Description:</b> {txn.description}</Typography>}
-                <IconButton color="error" onClick={() => handleDelete(txn.id as number)} sx={{ mt: 1 }}>
-                  <DeleteIcon />
-                </IconButton>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      {/* ✅ Transactions Table (Unchanged) */}
+      <TableContainer component={Paper} className="shadow-md">
+        <Table>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: "#f0f0f0" }}>
+              <TableCell><b>Date</b></TableCell>
+              <TableCell><b>Description</b></TableCell>
+              <TableCell><b>Category</b></TableCell>
+              <TableCell><b>Type</b></TableCell>
+              <TableCell><b>Amount (₹)</b></TableCell>
+              <TableCell><b>Actions</b></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {transactions.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} align="center">No transactions found.</TableCell>
+              </TableRow>
+            ) : (
+              transactions.map((tx) => (
+                <TableRow key={tx.id}>
+                  <TableCell>{new Date(tx.date).toLocaleDateString()}</TableCell>
+                  <TableCell>{tx.description}</TableCell>
+                  <TableCell>{tx.category}</TableCell>
+                  <TableCell>{tx.type === "income" ? "Income" : "Expense"}</TableCell>
+                  <TableCell sx={{ fontWeight: "bold", color: tx.type === "income" ? "green" : "red" }}>
+                    ₹{tx.amount.toLocaleString()}
+                  </TableCell>
+                  <TableCell>
+                    <Button size="small" color="error" onClick={() => handleDelete(tx.id)}>
+                      Delete
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   );
 }
